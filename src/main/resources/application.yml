@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: stock-management
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stock_management}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: ${PORT:${SERVER_PORT:8080}}
+
+application:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  security:
+    jwt:
+      # NE PAS mettre de valeur par defaut sensible : fournir JWT_SECRET via variable d'env (ou .env.local).
+      secret-key: ${JWT_SECRET:}
+      expiration: ${JWT_EXPIRATION:86400000} # 24h in milliseconds
+
+logging:
+  level:
+    com.montagegold.stock: ${LOG_LEVEL:INFO}

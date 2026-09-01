@@ -8,7 +8,8 @@ target/
 .vscode/
 
 # Secrets - NEVER commit these
-src/main/resources/application.yml
+# NOTE: il n'y a AUCUN secret dans src/main/resources/application.yml (placeholders ${...} uniquement).
+# Les vrais secrets proviennent des variables d'environnement (.env.local en local, variables Railway en prod).
 src/main/resources/application-local.yml
 src/main/resources/application-prod.yml
 .env
