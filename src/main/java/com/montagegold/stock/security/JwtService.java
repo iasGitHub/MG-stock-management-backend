@@ -29,7 +29,7 @@ public class JwtService {
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .orElse("ROLE_GESTIONNAIRE");
+                .orElse("ROLE_MANAGEMENT");
         claims.put("role", role);
         return buildToken(claims, userDetails);
     }

@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Nom d'utilisateur ou mot de passe incorrect");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Incorrect username or password");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Une erreur interne s'est produite : " + ex.getMessage());
+                "An internal error occurred: " + ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {

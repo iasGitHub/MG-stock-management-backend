@@ -1,10 +1,9 @@
 package com.montagegold.stock.security;
 
-import com.montagegold.stock.entity.Utilisateur;
-import com.montagegold.stock.repository.UtilisateurRepository;
+import com.montagegold.stock.entity.User;
+import com.montagegold.stock.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,22 +13,22 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UtilisateurRepository utilisateurRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Utilisateur utilisateur = utilisateurRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        "Utilisateur introuvable : " + username));
+                        "User not found: " + username));
 
-        if (!utilisateur.isActif()) {
-            throw new UsernameNotFoundException("Compte désactivé : " + username);
+        if (!user.isActive()) {
+            throw new UsernameNotFoundException("Account disabled: " + username);
         }
 
-        return new User(
-                utilisateur.getUsername(),
-                utilisateur.getPassword(),
-                java.util.List.of(new SimpleGrantedAuthority("ROLE_" + utilisateur.getRole().name()))
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                java.util.List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 }

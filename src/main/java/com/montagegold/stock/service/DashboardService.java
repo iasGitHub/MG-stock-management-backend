@@ -1,15 +1,15 @@
 package com.montagegold.stock.service;
 
 import com.montagegold.stock.dto.DashboardStats;
-import com.montagegold.stock.dto.ProduitResponse;
-import com.montagegold.stock.enums.TypeMouvement;
-import com.montagegold.stock.repository.MouvementStockRepository;
-import com.montagegold.stock.repository.ProduitRepository;
+import com.montagegold.stock.dto.ProductResponse;
+import com.montagegold.stock.entity.Product;
+import com.montagegold.stock.enums.MovementType;
+import com.montagegold.stock.repository.StockMovementRepository;
+import com.montagegold.stock.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,46 +18,46 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final ProduitRepository produitRepository;
-    private final MouvementStockRepository mouvementRepository;
+    private final ProductRepository productRepository;
+    private final StockMovementRepository movementRepository;
 
     public DashboardStats getStats() {
-        LocalDateTime debutMois = LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
 
-        List<com.montagegold.stock.entity.Produit> produits = produitRepository.findAll();
+        List<Product> products = productRepository.findAll();
 
-        int quantiteTotale = produits.stream()
-                .mapToInt(com.montagegold.stock.entity.Produit::getQuantiteStock)
+        int totalQuantity = products.stream()
+                .mapToInt(Product::getStockQuantity)
                 .sum();
 
-        double valeurStock = produits.stream()
-                .mapToDouble(p -> p.getQuantiteStock() * p.getPrixUnitaire())
+        double stockValue = products.stream()
+                .mapToDouble(p -> p.getStockQuantity() * p.getUnitPrice())
                 .sum();
 
         return DashboardStats.builder()
-                .totalProduits(produits.size())
-                .produitsEnAlerte(produitRepository.countProduitsEnAlerte())
-                .quantiteTotale(quantiteTotale)
-                .valeurStock(valeurStock)
-                .entreesDuMois(mouvementRepository.countByTypeDepuis(TypeMouvement.ENTREE, debutMois))
-                .sortiesDuMois(mouvementRepository.countByTypeDepuis(TypeMouvement.SORTIE, debutMois))
+                .totalProducts(products.size())
+                .productsInAlert(productRepository.countProductsInAlert())
+                .totalQuantity(totalQuantity)
+                .stockValue(stockValue)
+                .monthlyEntries(movementRepository.countByTypeSince(MovementType.IN, startOfMonth))
+                .monthlyExits(movementRepository.countByTypeSince(MovementType.OUT, startOfMonth))
                 .build();
     }
 
-    public List<ProduitResponse> getProduitsEnAlerte() {
-        return produitRepository.findProduitsEnAlerte().stream()
-                .map(p -> ProduitResponse.builder()
+    public List<ProductResponse> getProductsInAlert() {
+        return productRepository.findProductsInAlert().stream()
+                .map(p -> ProductResponse.builder()
                         .id(p.getId())
                         .reference(p.getReference())
-                        .nom(p.getNom())
+                        .name(p.getName())
                         .description(p.getDescription())
-                        .categorie(p.getCategorie())
-                        .quantiteStock(p.getQuantiteStock())
-                        .seuilMin(p.getSeuilMin())
-                        .prixUnitaire(p.getPrixUnitaire())
-                        .enAlerte(true)
-                        .dateCreation(p.getDateCreation())
-                        .dateModification(p.getDateModification())
+                        .category(p.getCategory())
+                        .stockQuantity(p.getStockQuantity())
+                        .minThreshold(p.getMinThreshold())
+                        .unitPrice(p.getUnitPrice())
+                        .inAlert(true)
+                        .createdDate(p.getCreatedDate())
+                        .updatedDate(p.getUpdatedDate())
                         .build())
                 .collect(Collectors.toList());
     }

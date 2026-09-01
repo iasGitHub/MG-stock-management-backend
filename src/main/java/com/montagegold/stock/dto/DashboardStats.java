@@ -9,10 +9,10 @@ import lombok.Setter;
 @Builder
 public class DashboardStats {
 
-    private long totalProduits;
-    private long produitsEnAlerte;
-    private int quantiteTotale;
-    private double valeurStock;
-    private long entreesDuMois;
-    private long sortiesDuMois;
+    private long totalProducts;
+    private long productsInAlert;
+    private int totalQuantity;
+    private double stockValue;
+    private long monthlyEntries;
+    private long monthlyExits;
 }
