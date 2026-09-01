@@ -1,0 +1,16 @@
+# Compiled output
+target/
+*.class
+
+# IDEs and editors
+.idea/
+*.iml
+.vscode/
+
+# Secrets - NEVER commit these
+src/main/resources/application.yml
+src/main/resources/application-local.yml
+src/main/resources/application-prod.yml
+.env
+.env.local
+.env.*.local
