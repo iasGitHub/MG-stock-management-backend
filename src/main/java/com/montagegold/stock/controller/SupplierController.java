@@ -2,7 +2,9 @@ package com.montagegold.stock.controller;
 
 import com.montagegold.stock.dto.SupplierRequest;
 import com.montagegold.stock.dto.SupplierResponse;
+import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.SupplierService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class SupplierController {
 
     private final SupplierService supplierService;
+    private final ExcelService excelService;
 
     @GetMapping
     public ResponseEntity<Page<SupplierResponse>> findAll(
@@ -59,5 +67,32 @@ public class SupplierController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         supplierService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGEMENT')")
+    public ResponseEntity<Map<String, Object>> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        List<SupplierRequest> parsed = excelService.parseSupplierImport(file);
+        int created = 0;
+        int skipped = 0;
+        for (SupplierRequest req : parsed) {
+            try {
+                supplierService.create(req);
+                created++;
+            } catch (Exception e) {
+                skipped++;
+            }
+        }
+        return ResponseEntity.ok(Map.of(
+                "created", created,
+                "skipped", skipped,
+                "total", parsed.size()
+        ));
+    }
+
+    @GetMapping("/export/template")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGEMENT')")
+    public void exportTemplate(HttpServletResponse response) throws IOException {
+        excelService.exportSupplierTemplate(response);
     }
 }
