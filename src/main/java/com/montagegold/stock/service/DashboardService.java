@@ -32,7 +32,7 @@ public class DashboardService {
 
         double stockValue = products.stream()
                 .mapToDouble(p -> p.getStockQuantity() * p.getUnitPrice())
-                .sum();
+                .sum() / 10.0;
 
         return DashboardStats.builder()
                 .totalProducts(products.size())
@@ -54,7 +54,7 @@ public class DashboardService {
                         .category(p.getCategory())
                         .stockQuantity(p.getStockQuantity())
                         .minThreshold(p.getMinThreshold())
-                        .unitPrice(p.getUnitPrice())
+                        .unitPrice(p.getUnitPrice() / 10.0)
                         .inAlert(true)
                         .createdDate(p.getCreatedDate())
                         .updatedDate(p.getUpdatedDate())

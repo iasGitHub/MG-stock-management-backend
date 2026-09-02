@@ -63,7 +63,7 @@ public class ProductService {
                 .category(request.getCategory())
                 .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
                 .minThreshold(request.getMinThreshold())
-                .unitPrice(request.getUnitPrice())
+                .unitPrice(mro(request.getUnitPrice()))
                 .build();
         return toResponse(productRepository.save(product));
     }
@@ -82,7 +82,7 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setCategory(request.getCategory());
         product.setMinThreshold(request.getMinThreshold());
-        product.setUnitPrice(request.getUnitPrice());
+        product.setUnitPrice(mro(request.getUnitPrice()));
         return toResponse(productRepository.save(product));
     }
 
@@ -107,10 +107,18 @@ public class ProductService {
                 .category(p.getCategory())
                 .stockQuantity(p.getStockQuantity())
                 .minThreshold(p.getMinThreshold())
-                .unitPrice(p.getUnitPrice())
+                .unitPrice(mru(p.getUnitPrice()))
                 .inAlert(p.getStockQuantity() <= p.getMinThreshold())
                 .createdDate(p.getCreatedDate())
                 .updatedDate(p.getUpdatedDate())
                 .build();
+    }
+
+    private double mru(double mro) {
+        return mro / 10.0;
+    }
+
+    private double mro(double mru) {
+        return mru * 10.0;
     }
 }

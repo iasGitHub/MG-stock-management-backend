@@ -67,7 +67,9 @@ public class StockMovementService {
 
         product.setStockQuantity(newQuantity);
 
-        Double price = request.getUnitPrice() != null ? request.getUnitPrice() : product.getUnitPrice();
+        Double price = request.getUnitPrice() != null
+                ? request.getUnitPrice() * 10.0
+                : product.getUnitPrice();
 
         Supplier supplier = null;
         String recipient = null;
@@ -125,8 +127,8 @@ public class StockMovementService {
                 .supplierNif(m.getSupplier() != null ? m.getSupplier().getNif() : null)
                 .supplierName(m.getSupplier() != null ? m.getSupplier().getName() : null)
                 .recipient(m.getRecipient())
-                .unitPrice(m.getUnitPrice())
-                .userName(m.getUser().getFullName())
+                .unitPrice(m.getUnitPrice() / 10.0)
+                .userName(m.getUser().getUsername())
                 .movementDate(m.getMovementDate())
                 .build();
     }
