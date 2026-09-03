@@ -33,4 +33,8 @@ public class User {
     @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean mustChangePassword = true;
 }

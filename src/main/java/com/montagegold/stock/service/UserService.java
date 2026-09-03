@@ -65,6 +65,7 @@ public class UserService {
         user.setActive(request.isActive());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setMustChangePassword(true);
         }
         return toResponse(userRepository.save(user));
     }
