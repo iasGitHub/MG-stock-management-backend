@@ -13,6 +13,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByReference(String reference);
 
+    Optional<Product> findByNameIgnoreCase(String name);
+
+    Optional<Product> findByNameIgnoreCaseAndIdNot(String name, Long id);
+
     Optional<Product> findByReferenceAndIdNot(String reference, Long id);
 
     Page<Product> findByNameContainingIgnoreCaseOrReferenceContainingIgnoreCase(
