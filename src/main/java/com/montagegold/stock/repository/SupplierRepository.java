@@ -11,6 +11,8 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long> {
 
     boolean existsByNifIgnoreCase(String code);
 
+    Optional<Supplier> findByNifIgnoreCase(String code);
+
     Optional<Supplier> findByNifIgnoreCaseAndIdNot(String code, Long id);
 
     Page<Supplier> findByNameContainingIgnoreCaseOrNifContainingIgnoreCase(
