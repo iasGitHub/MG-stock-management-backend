@@ -40,6 +40,18 @@ public class CategoryService {
     }
 
     @Transactional
+    public CategoryResponse ensureExists(String name) {
+        if (name == null || name.isBlank()) return null;
+        String trimmed = name.trim();
+        return categoryRepository.findByNameIgnoreCase(trimmed)
+                .map(this::toResponse)
+                .orElseGet(() -> {
+                    Category category = Category.builder().name(trimmed).build();
+                    return toResponse(categoryRepository.save(category));
+                });
+    }
+
+    @Transactional
     public CategoryResponse create(CategoryRequest request) {
         String name = request.getName().trim();
         if (categoryRepository.existsByNameIgnoreCase(name)) {

@@ -69,6 +69,28 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponse createFromImport(ProductRequest request) {
+        String reference = request.getReference() != null && !request.getReference().isBlank()
+                ? request.getReference().trim()
+                : nextReference();
+
+        if (productRepository.existsByReference(reference)) {
+            throw new BusinessException("This product reference already exists: " + reference, HttpStatus.CONFLICT);
+        }
+
+        Product product = Product.builder()
+                .reference(reference)
+                .name(request.getName())
+                .description(request.getDescription())
+                .category(request.getCategory())
+                .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
+                .minThreshold(request.getMinThreshold() != null ? request.getMinThreshold() : 0)
+                .unitPrice(mro(request.getUnitPrice()))
+                .build();
+        return toResponse(productRepository.save(product));
+    }
+
+    @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = productRepository.findById(id).orElseThrow(() -> notFound(id));
 

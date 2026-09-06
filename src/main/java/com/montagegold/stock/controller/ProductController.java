@@ -2,8 +2,11 @@ package com.montagegold.stock.controller;
 
 import com.montagegold.stock.dto.ProductRequest;
 import com.montagegold.stock.dto.ProductResponse;
+import com.montagegold.stock.service.CategoryService;
 import com.montagegold.stock.service.DashboardService;
+import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.ProductService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +16,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +29,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final DashboardService dashboardService;
+    private final ExcelService excelService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> findAll(
@@ -73,5 +80,33 @@ public class ProductController {
     @GetMapping("/alerts")
     public ResponseEntity<List<ProductResponse>> productsInAlert() {
         return ResponseEntity.ok(dashboardService.getProductsInAlert());
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGEMENT')")
+    public ResponseEntity<Map<String, Object>> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        List<ProductRequest> parsed = excelService.parseProductImport(file);
+        int created = 0;
+        int skipped = 0;
+        for (ProductRequest req : parsed) {
+            try {
+                categoryService.ensureExists(req.getCategory());
+                productService.createFromImport(req);
+                created++;
+            } catch (Exception e) {
+                skipped++;
+            }
+        }
+        return ResponseEntity.ok(Map.of(
+                "created", created,
+                "skipped", skipped,
+                "total", parsed.size()
+        ));
+    }
+
+    @GetMapping("/export/template")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGEMENT')")
+    public void exportTemplate(HttpServletResponse response) throws IOException {
+        excelService.exportProductTemplate(response);
     }
 }
