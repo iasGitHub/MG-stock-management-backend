@@ -51,7 +51,7 @@ public class DashboardService {
                         .reference(p.getReference())
                         .name(p.getName())
                         .description(p.getDescription())
-                        .category(p.getCategory())
+                        .category(p.getCategory() != null ? p.getCategory().getName() : null)
                         .stockQuantity(p.getStockQuantity())
                         .minThreshold(p.getMinThreshold())
                         .unitPrice(p.getUnitPrice() / 10.0)

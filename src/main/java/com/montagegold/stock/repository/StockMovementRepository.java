@@ -21,6 +21,8 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
     boolean existsBySupplierId(Long supplierId);
 
+    boolean existsByReversesId(Long movementId);
+
     @Query("SELECT m FROM StockMovement m WHERE m.movementDate BETWEEN :start AND :end ORDER BY m.movementDate DESC")
     List<StockMovement> findByPeriod(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 

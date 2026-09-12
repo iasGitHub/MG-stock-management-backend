@@ -1,5 +1,6 @@
 package com.montagegold.stock.controller;
 
+import com.montagegold.stock.dto.CancelMovementRequest;
 import com.montagegold.stock.dto.StockMovementRequest;
 import com.montagegold.stock.dto.StockMovementResponse;
 import com.montagegold.stock.enums.MovementType;
@@ -44,6 +45,15 @@ public class StockMovementController {
     public ResponseEntity<StockMovementResponse> record(@Valid @RequestBody StockMovementRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(stockMovementService.record(request));
+    }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGEMENT')")
+    public ResponseEntity<StockMovementResponse> cancel(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) CancelMovementRequest request) {
+        String reason = request != null ? request.getReason() : null;
+        return ResponseEntity.ok(stockMovementService.cancel(id, reason));
     }
 
     @GetMapping("/export")

@@ -2,7 +2,6 @@ package com.montagegold.stock.controller;
 
 import com.montagegold.stock.dto.ProductRequest;
 import com.montagegold.stock.dto.ProductResponse;
-import com.montagegold.stock.service.CategoryService;
 import com.montagegold.stock.service.DashboardService;
 import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.ProductService;
@@ -30,7 +29,6 @@ public class ProductController {
     private final ProductService productService;
     private final DashboardService dashboardService;
     private final ExcelService excelService;
-    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> findAll(
@@ -90,7 +88,6 @@ public class ProductController {
         int skipped = 0;
         for (ProductRequest req : parsed) {
             try {
-                categoryService.ensureExists(req.getCategory());
                 productService.createFromImport(req);
                 created++;
             } catch (Exception e) {

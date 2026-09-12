@@ -45,7 +45,7 @@ public class StockMovementService {
 
     @Transactional
     public StockMovementResponse record(StockMovementRequest request) {
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findByIdForUpdate(request.getProductId())
                 .orElseThrow(() -> new BusinessException(
                         "Product not found (id=" + request.getProductId() + ")", HttpStatus.NOT_FOUND));
 
@@ -113,6 +113,55 @@ public class StockMovementService {
         return principal.toString();
     }
 
+    @Transactional
+    public StockMovementResponse cancel(Long id, String reason) {
+        StockMovement original = movementRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "Movement not found (id=" + id + ")", HttpStatus.NOT_FOUND));
+
+        if (original.getReverses() != null) {
+            throw new BusinessException("A correction movement cannot be cancelled", HttpStatus.BAD_REQUEST);
+        }
+        if (movementRepository.existsByReversesId(original.getId())) {
+            throw new BusinessException("This movement has already been corrected", HttpStatus.BAD_REQUEST);
+        }
+
+        Product product = productRepository.findByIdForUpdate(original.getProduct().getId())
+                .orElseThrow(() -> new BusinessException(
+                        "Product not found (id=" + original.getProduct().getId() + ")", HttpStatus.NOT_FOUND));
+
+        MovementType inverse = original.getType() == MovementType.IN ? MovementType.OUT : MovementType.IN;
+        int newQuantity = product.getStockQuantity()
+                + (inverse == MovementType.IN ? original.getQuantity() : -original.getQuantity());
+        if (newQuantity < 0) {
+            throw new BusinessException(String.format(
+                    "Cannot cancel: insufficient stock for '%s': available=%d, needed=%d",
+                    product.getName(), product.getStockQuantity(), original.getQuantity()),
+                    HttpStatus.BAD_REQUEST);
+        }
+        product.setStockQuantity(newQuantity);
+
+        User user = userService.getByUsername(currentUsername());
+
+        StockMovement correction = StockMovement.builder()
+                .product(product)
+                .type(inverse)
+                .quantity(original.getQuantity())
+                .reason(reason != null && !reason.isBlank()
+                        ? reason.trim()
+                        : "Annulation du mouvement #" + original.getId())
+                .externalReference(original.getExternalReference())
+                .recipient(original.getType() == MovementType.IN && original.getSupplier() != null
+                        ? original.getSupplier().getName()
+                        : null)
+                .unitPrice(original.getUnitPrice())
+                .reverses(original)
+                .user(user)
+                .build();
+
+        return toResponse(movementRepository.save(correction));
+    }
+
     private StockMovementResponse toResponse(StockMovement m) {
         return StockMovementResponse.builder()
                 .id(m.getId())
@@ -129,6 +178,7 @@ public class StockMovementService {
                 .recipient(m.getRecipient())
                 .unitPrice(m.getUnitPrice() / 10.0)
                 .userName(m.getUser().getUsername())
+                .reversesId(m.getReverses() != null ? m.getReverses().getId() : null)
                 .movementDate(m.getMovementDate())
                 .build();
     }

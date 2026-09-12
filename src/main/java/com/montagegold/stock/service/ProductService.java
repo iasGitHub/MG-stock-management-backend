@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
 
     public Page<ProductResponse> findAll(String search, Pageable pageable) {
         if (search != null && !search.isBlank()) {
@@ -60,7 +61,7 @@ public class ProductService {
                 .reference(nextReference())
                 .name(request.getName())
                 .description(request.getDescription())
-                .category(request.getCategory())
+                .category(categoryService.resolve(request.getCategory()))
                 .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
                 .minThreshold(request.getMinThreshold())
                 .unitPrice(mro(request.getUnitPrice()))
@@ -82,7 +83,7 @@ public class ProductService {
                 .reference(reference)
                 .name(request.getName())
                 .description(request.getDescription())
-                .category(request.getCategory())
+                .category(categoryService.resolve(request.getCategory()))
                 .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
                 .minThreshold(request.getMinThreshold() != null ? request.getMinThreshold() : 0)
                 .unitPrice(mro(request.getUnitPrice()))
@@ -102,7 +103,7 @@ public class ProductService {
         product.setReference(request.getReference());
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setCategory(request.getCategory());
+        product.setCategory(categoryService.resolve(request.getCategory()));
         product.setMinThreshold(request.getMinThreshold());
         product.setUnitPrice(mro(request.getUnitPrice()));
         return toResponse(productRepository.save(product));
@@ -126,7 +127,7 @@ public class ProductService {
                 .reference(p.getReference())
                 .name(p.getName())
                 .description(p.getDescription())
-                .category(p.getCategory())
+                .category(p.getCategory() != null ? p.getCategory().getName() : null)
                 .stockQuantity(p.getStockQuantity())
                 .minThreshold(p.getMinThreshold())
                 .unitPrice(mru(p.getUnitPrice()))

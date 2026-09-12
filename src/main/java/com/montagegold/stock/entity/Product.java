@@ -30,9 +30,9 @@ public class Product {
     @Column(length = 255)
     private String description;
 
-    @NotNull(message = "The category is required")
-    @Column(nullable = false, length = 50)
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Builder.Default
     @Min(value = 0, message = "The quantity cannot be negative")

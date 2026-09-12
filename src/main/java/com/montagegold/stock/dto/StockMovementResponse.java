@@ -26,5 +26,6 @@ public class StockMovementResponse {
     private String recipient;
     private Double unitPrice;
     private String userName;
+    private Long reversesId;
     private LocalDateTime movementDate;
 }

@@ -41,14 +41,18 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse ensureExists(String name) {
-        if (name == null || name.isBlank()) return null;
+        Category category = resolve(name);
+        return category != null ? toResponse(category) : null;
+    }
+
+    @Transactional
+    public Category resolve(String name) {
+        if (name == null || name.isBlank()) {
+            throw new BusinessException("The category is required", HttpStatus.BAD_REQUEST);
+        }
         String trimmed = name.trim();
         return categoryRepository.findByNameIgnoreCase(trimmed)
-                .map(this::toResponse)
-                .orElseGet(() -> {
-                    Category category = Category.builder().name(trimmed).build();
-                    return toResponse(categoryRepository.save(category));
-                });
+                .orElseGet(() -> categoryRepository.save(Category.builder().name(trimmed).build()));
     }
 
     @Transactional
@@ -80,7 +84,7 @@ public class CategoryService {
     @Transactional
     public void delete(Long id) {
         Category category = getById(id);
-        if (productRepository.existsByCategoryIgnoreCase(category.getName())) {
+        if (productRepository.existsByCategoryId(category.getId())) {
             throw new BusinessException(
                     "Cannot delete this category: products are associated with it",
                     HttpStatus.CONFLICT);

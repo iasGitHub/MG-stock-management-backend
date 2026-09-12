@@ -1,9 +1,11 @@
 package com.montagegold.stock.config;
 
+import com.montagegold.stock.entity.Category;
 import com.montagegold.stock.entity.Supplier;
 import com.montagegold.stock.entity.Product;
 import com.montagegold.stock.entity.User;
 import com.montagegold.stock.enums.Role;
+import com.montagegold.stock.repository.CategoryRepository;
 import com.montagegold.stock.repository.SupplierRepository;
 import com.montagegold.stock.repository.ProductRepository;
 import com.montagegold.stock.repository.UserRepository;
@@ -21,7 +23,13 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
+    private final CategoryRepository categoryRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private Category category(String name) {
+        return categoryRepository.findByNameIgnoreCase(name)
+                .orElseGet(() -> categoryRepository.save(Category.builder().name(name).build()));
+    }
 
     @Override
     public void run(String... args) {
@@ -47,25 +55,25 @@ public class DataInitializer implements CommandLineRunner {
             productRepository.save(Product.builder()
                     .reference("REF-001").name("HP Portable Laptop")
                     .description("HP ProBook 15 inches - i5 8GB RAM")
-                    .category("IT").stockQuantity(15).minThreshold(5)
+                    .category(category("IT")).stockQuantity(15).minThreshold(5)
                     .unitPrice(450000.0).build());
 
             productRepository.save(Product.builder()
                     .reference("REF-002").name("Canon Printer")
                     .description("Mono laser printer")
-                    .category("IT").stockQuantity(3).minThreshold(5)
+                    .category(category("IT")).stockQuantity(3).minThreshold(5)
                     .unitPrice(180000.0).build());
 
             productRepository.save(Product.builder()
                     .reference("REF-003").name("A4 Paper Ream")
                     .description("Office paper 80g - pack of 500 sheets")
-                    .category("Stationery").stockQuantity(120).minThreshold(30)
+                    .category(category("Stationery")).stockQuantity(120).minThreshold(30)
                     .unitPrice(3500.0).build());
 
             productRepository.save(Product.builder()
                     .reference("REF-004").name("Black Toner")
                     .description("Compatible toner cartridge for Canon")
-                    .category("Consumables").stockQuantity(8).minThreshold(10)
+                    .category(category("Consumables")).stockQuantity(8).minThreshold(10)
                     .unitPrice(25000.0).build());
 
             log.info("Sample products created");
