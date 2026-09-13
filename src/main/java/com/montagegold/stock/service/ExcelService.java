@@ -191,7 +191,7 @@ public class ExcelService {
         Sheet sheet = workbook.createSheet("Produits");
 
         String[] headers = {"Référence *", "Nom *", "Description", "Catégorie *",
-                "Seuil minimum", "Stock initial", "Prix unitaire (MRU) *"};
+                "Seuil minimum", "Stock initial (entrée de reprise)", "Prix unitaire (MRU) *"};
 
         CellStyle headerStyle = createHeaderStyle(workbook);
         Row headerRow = sheet.createRow(0);

@@ -114,6 +114,28 @@ public class StockMovementService {
     }
 
     @Transactional
+    public StockMovementResponse recordInitialReprise(Long productId, Integer quantity, String reason) {
+        Product product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> new BusinessException(
+                        "Product not found (id=" + productId + ")", HttpStatus.NOT_FOUND));
+
+        product.setStockQuantity(product.getStockQuantity() + quantity);
+
+        User user = userService.getByUsername(currentUsername());
+
+        StockMovement movement = StockMovement.builder()
+                .product(product)
+                .type(MovementType.IN)
+                .quantity(quantity)
+                .reason(reason != null && !reason.isBlank() ? reason.trim() : "Inventaire initial")
+                .unitPrice(product.getUnitPrice())
+                .user(user)
+                .build();
+
+        return toResponse(movementRepository.save(movement));
+    }
+
+    @Transactional
     public StockMovementResponse cancel(Long id, String reason) {
         StockMovement original = movementRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(

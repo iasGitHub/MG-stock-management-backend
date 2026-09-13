@@ -5,6 +5,7 @@ import com.montagegold.stock.dto.ProductResponse;
 import com.montagegold.stock.entity.Product;
 import com.montagegold.stock.exception.BusinessException;
 import com.montagegold.stock.repository.ProductRepository;
+import com.montagegold.stock.repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,9 @@ import java.util.regex.Pattern;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final StockMovementRepository stockMovementRepository;
     private final CategoryService categoryService;
+    private final StockMovementService stockMovementService;
 
     public Page<ProductResponse> findAll(String search, Pageable pageable) {
         if (search != null && !search.isBlank()) {
@@ -62,7 +65,7 @@ public class ProductService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .category(categoryService.resolve(request.getCategory()))
-                .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
+                .stockQuantity(0)
                 .minThreshold(request.getMinThreshold())
                 .unitPrice(mro(request.getUnitPrice()))
                 .build();
@@ -84,11 +87,17 @@ public class ProductService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .category(categoryService.resolve(request.getCategory()))
-                .stockQuantity(request.getInitialQuantity() != null ? request.getInitialQuantity() : 0)
+                .stockQuantity(0)
                 .minThreshold(request.getMinThreshold() != null ? request.getMinThreshold() : 0)
                 .unitPrice(mro(request.getUnitPrice()))
                 .build();
-        return toResponse(productRepository.save(product));
+        Product saved = productRepository.save(product);
+
+        Integer initialQuantity = request.getInitialQuantity();
+        if (initialQuantity != null && initialQuantity > 0) {
+            stockMovementService.recordInitialReprise(saved.getId(), initialQuantity, "Import initial");
+        }
+        return toResponse(saved);
     }
 
     @Transactional
@@ -113,6 +122,11 @@ public class ProductService {
     public void delete(Long id) {
         if (!productRepository.existsById(id)) {
             throw notFound(id);
+        }
+        if (stockMovementRepository.existsByProductId(id)) {
+            throw new BusinessException(
+                    "Impossible de supprimer un produit ayant un historique de mouvements",
+                    HttpStatus.CONFLICT);
         }
         productRepository.deleteById(id);
     }
