@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class CategoryRequest {
 
-    @NotBlank(message = "The category name is required")
-    @Size(max = 50, message = "The category name must not exceed 50 characters")
+    @NotBlank(message = "Le nom de la catégorie est requis")
+    @Size(max = 50, message = "Le nom de la catégorie ne doit pas dépasser 50 caractères")
     private String name;
 }

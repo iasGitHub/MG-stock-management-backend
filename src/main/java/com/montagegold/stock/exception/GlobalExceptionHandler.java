@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Incorrect username or password");
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Nom d'utilisateur ou mot de passe incorrect");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

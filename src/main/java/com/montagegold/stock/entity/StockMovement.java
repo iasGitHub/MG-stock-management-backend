@@ -24,7 +24,7 @@ public class StockMovement {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @NotNull(message = "The movement type is required")
+    @NotNull(message = "Le type de mouvement est requis")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private MovementType type;
@@ -33,12 +33,12 @@ public class StockMovement {
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
-    @Size(max = 150, message = "The recipient must not exceed 150 characters")
+    @Size(max = 150, message = "Le destinataire ne doit pas dépasser 150 caractères")
     @Column(length = 150)
     private String recipient;
 
-    @NotNull(message = "The quantity is required")
-    @Min(value = 1, message = "The quantity must be at least 1")
+    @NotNull(message = "La quantité est requise")
+    @Min(value = 1, message = "La quantité doit être au moins 1")
     @Column(nullable = false)
     private Integer quantity;
 

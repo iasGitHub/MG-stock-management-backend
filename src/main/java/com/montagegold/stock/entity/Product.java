@@ -19,11 +19,11 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "The reference is required")
+    @NotBlank(message = "La référence est requise")
     @Column(nullable = false, unique = true, length = 50)
     private String reference;
 
-    @NotBlank(message = "The product name is required")
+    @NotBlank(message = "Le nom du produit est requis")
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -35,17 +35,17 @@ public class Product {
     private Category category;
 
     @Builder.Default
-    @Min(value = 0, message = "The quantity cannot be negative")
+    @Min(value = 0, message = "La quantité ne peut pas être négative")
     @Column(nullable = false)
     private Integer stockQuantity = 0;
 
-    @NotNull(message = "The minimum threshold is required")
-    @Min(value = 0, message = "The minimum threshold cannot be negative")
+    @NotNull(message = "Le seuil minimum est requis")
+    @Min(value = 0, message = "Le seuil minimum ne peut pas être négatif")
     @Column(nullable = false)
     private Integer minThreshold;
 
-    @NotNull(message = "The unit price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "The price must be greater than 0")
+    @NotNull(message = "Le prix unitaire est requis")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Le prix doit être supérieur à 0")
     @Column(nullable = false)
     private Double unitPrice;
 

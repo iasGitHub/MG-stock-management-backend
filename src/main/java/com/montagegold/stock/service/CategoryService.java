@@ -48,7 +48,7 @@ public class CategoryService {
     @Transactional
     public Category resolve(String name) {
         if (name == null || name.isBlank()) {
-            throw new BusinessException("The category is required", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("La catégorie est requise", HttpStatus.BAD_REQUEST);
         }
         String trimmed = name.trim();
         return categoryRepository.findByNameIgnoreCase(trimmed)
@@ -59,7 +59,7 @@ public class CategoryService {
     public CategoryResponse create(CategoryRequest request) {
         String name = request.getName().trim();
         if (categoryRepository.existsByNameIgnoreCase(name)) {
-            throw new BusinessException("This category already exists", HttpStatus.CONFLICT);
+            throw new BusinessException("Cette catégorie existe déjà", HttpStatus.CONFLICT);
         }
         Category category = Category.builder()
                 .name(name)
@@ -74,7 +74,7 @@ public class CategoryService {
 
         categoryRepository.findByNameIgnoreCaseAndIdNot(name, id)
                 .ifPresent(c -> {
-                    throw new BusinessException("This category already exists", HttpStatus.CONFLICT);
+                    throw new BusinessException("Cette catégorie existe déjà", HttpStatus.CONFLICT);
                 });
 
         category.setName(name);
@@ -86,7 +86,7 @@ public class CategoryService {
         Category category = getById(id);
         if (productRepository.existsByCategoryId(category.getId())) {
             throw new BusinessException(
-                    "Cannot delete this category: products are associated with it",
+                    "Impossible de supprimer cette catégorie : des produits lui sont associés",
                     HttpStatus.CONFLICT);
         }
         categoryRepository.delete(category);
@@ -94,7 +94,7 @@ public class CategoryService {
 
     private Category getById(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Category not found (id=" + id + ")", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new BusinessException("Catégorie introuvable (id=" + id + ")", HttpStatus.NOT_FOUND));
     }
 
     private CategoryResponse toResponse(Category c) {

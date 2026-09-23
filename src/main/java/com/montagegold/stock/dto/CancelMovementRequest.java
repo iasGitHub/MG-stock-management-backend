@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class CancelMovementRequest {
 
-    @Size(max = 255, message = "The reason must not exceed 255 characters")
+    @Size(max = 255, message = "Le motif ne doit pas dépasser 255 caractères")
     private String reason;
 }

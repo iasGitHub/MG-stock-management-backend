@@ -46,7 +46,7 @@ public class SupplierService {
     @Transactional
     public SupplierResponse create(SupplierRequest request) {
         if (supplierRepository.existsByNifIgnoreCase(request.getNif())) {
-            throw new BusinessException("This supplier nif already exists", HttpStatus.CONFLICT);
+            throw new BusinessException("Ce NIF fournisseur existe déjà", HttpStatus.CONFLICT);
         }
         return toResponse(supplierRepository.save(toEntity(new Supplier(), request)));
     }
@@ -57,7 +57,7 @@ public class SupplierService {
 
         supplierRepository.findByNifIgnoreCaseAndIdNot(request.getNif(), id)
                 .ifPresent(f -> {
-                    throw new BusinessException("This supplier nif already exists", HttpStatus.CONFLICT);
+                    throw new BusinessException("Ce NIF fournisseur existe déjà", HttpStatus.CONFLICT);
                 });
 
         toEntity(supplier, request);
@@ -71,7 +71,7 @@ public class SupplierService {
         }
         if (stockMovementRepository.existsBySupplierId(id)) {
             throw new BusinessException(
-                    "Cannot delete this supplier: movements are associated with it",
+                    "Impossible de supprimer ce fournisseur : des mouvements lui sont associés",
                     HttpStatus.CONFLICT);
         }
         supplierRepository.deleteById(id);
@@ -86,7 +86,7 @@ public class SupplierService {
     }
 
     private BusinessException notFound(Long id) {
-        return new BusinessException("Supplier not found (id=" + id + ")", HttpStatus.NOT_FOUND);
+        return new BusinessException("Fournisseur introuvable (id=" + id + ")", HttpStatus.NOT_FOUND);
     }
 
     private SupplierResponse toResponse(Supplier s) {

@@ -64,7 +64,7 @@ public class StockMovementService {
     public StockMovementResponse record(StockMovementRequest request) {
         Product product = productRepository.findByIdForUpdate(request.getProductId())
                 .orElseThrow(() -> new BusinessException(
-                        "Product not found (id=" + request.getProductId() + ")", HttpStatus.NOT_FOUND));
+                        "Produit introuvable (id=" + request.getProductId() + ")", HttpStatus.NOT_FOUND));
 
         String username = currentUsername();
         User user = userService.getByUsername(username);
@@ -76,7 +76,7 @@ public class StockMovementService {
             newQuantity = product.getStockQuantity() - request.getQuantity();
             if (newQuantity < 0) {
                 throw new BusinessException(String.format(
-                        "Insufficient stock for '%s': available=%d, requested=%d",
+                        "Stock insuffisant pour '%s' : disponible=%d, demandé=%d",
                         product.getName(), product.getStockQuantity(), request.getQuantity()),
                         HttpStatus.BAD_REQUEST);
             }
@@ -92,16 +92,16 @@ public class StockMovementService {
         String recipient = null;
         if (request.getType() == MovementType.IN) {
             if (request.getSupplierId() == null) {
-                throw new BusinessException("The supplier is required for a stock entry",
+                throw new BusinessException("Le fournisseur est requis pour une entrée de stock",
                         HttpStatus.BAD_REQUEST);
             }
             supplier = supplierRepository.findById(request.getSupplierId())
                     .orElseThrow(() -> new BusinessException(
-                            "Supplier not found (id=" + request.getSupplierId() + ")",
+                            "Fournisseur introuvable (id=" + request.getSupplierId() + ")",
                             HttpStatus.NOT_FOUND));
         } else {
             if (request.getRecipient() == null || request.getRecipient().isBlank()) {
-                throw new BusinessException("The recipient is required for a stock exit",
+                throw new BusinessException("Le destinataire est requis pour une sortie de stock",
                         HttpStatus.BAD_REQUEST);
             }
             recipient = request.getRecipient().trim();
@@ -134,7 +134,7 @@ public class StockMovementService {
     public StockMovementResponse recordInitialReprise(Long productId, Integer quantity, String reason) {
         Product product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> new BusinessException(
-                        "Product not found (id=" + productId + ")", HttpStatus.NOT_FOUND));
+                        "Produit introuvable (id=" + productId + ")", HttpStatus.NOT_FOUND));
 
         product.setStockQuantity(product.getStockQuantity() + quantity);
 
@@ -156,25 +156,25 @@ public class StockMovementService {
     public StockMovementResponse cancel(Long id, String reason) {
         StockMovement original = movementRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        "Movement not found (id=" + id + ")", HttpStatus.NOT_FOUND));
+                        "Mouvement introuvable (id=" + id + ")", HttpStatus.NOT_FOUND));
 
         if (original.getReverses() != null) {
-            throw new BusinessException("A correction movement cannot be cancelled", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Un mouvement de correction ne peut pas être annulé", HttpStatus.BAD_REQUEST);
         }
         if (movementRepository.existsByReversesId(original.getId())) {
-            throw new BusinessException("This movement has already been corrected", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("Ce mouvement a déjà été corrigé", HttpStatus.BAD_REQUEST);
         }
 
         Product product = productRepository.findByIdForUpdate(original.getProduct().getId())
                 .orElseThrow(() -> new BusinessException(
-                        "Product not found (id=" + original.getProduct().getId() + ")", HttpStatus.NOT_FOUND));
+                        "Produit introuvable (id=" + original.getProduct().getId() + ")", HttpStatus.NOT_FOUND));
 
         MovementType inverse = original.getType() == MovementType.IN ? MovementType.OUT : MovementType.IN;
         int newQuantity = product.getStockQuantity()
                 + (inverse == MovementType.IN ? original.getQuantity() : -original.getQuantity());
         if (newQuantity < 0) {
             throw new BusinessException(String.format(
-                    "Cannot cancel: insufficient stock for '%s': available=%d, needed=%d",
+                    "Impossible d'annuler : stock insuffisant pour '%s' : disponible=%d, nécessaire=%d",
                     product.getName(), product.getStockQuantity(), original.getQuantity()),
                     HttpStatus.BAD_REQUEST);
         }

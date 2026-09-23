@@ -9,17 +9,17 @@ import lombok.Setter;
 @Setter
 public class SupplierRequest {
 
-    @NotBlank(message = "The nif is required")
-    @Size(max = 50, message = "The nif must not exceed 50 characters")
+    @NotBlank(message = "Le NIF est requis")
+    @Size(max = 50, message = "Le NIF ne doit pas dépasser 50 caractères")
     private String nif;
 
-    @NotBlank(message = "The supplier name is required")
-    @Size(max = 100, message = "The name must not exceed 100 characters")
+    @NotBlank(message = "Le nom du fournisseur est requis")
+    @Size(max = 100, message = "Le nom ne doit pas dépasser 100 caractères")
     private String name;
 
-    @Size(max = 20, message = "The phone must not exceed 20 characters")
+    @Size(max = 20, message = "Le téléphone ne doit pas dépasser 20 caractères")
     private String phone;
 
-    @Size(max = 255, message = "The address must not exceed 255 characters")
+    @Size(max = 255, message = "L'adresse ne doit pas dépasser 255 caractères")
     private String address;
 }

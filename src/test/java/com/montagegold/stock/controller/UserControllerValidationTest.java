@@ -91,7 +91,7 @@ class UserControllerValidationTest {
                         .content("""
                                 {"username":"bob","password":"secret1","fullName":"Bob","role":"MANAGEMENT","active":true}
                                 """))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(userService).create(org.mockito.ArgumentMatchers.any());
     }

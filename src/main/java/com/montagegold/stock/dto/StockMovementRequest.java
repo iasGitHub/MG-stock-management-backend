@@ -12,27 +12,27 @@ import lombok.Setter;
 @Setter
 public class StockMovementRequest {
 
-    @NotNull(message = "The product is required")
+    @NotNull(message = "Le produit est requis")
     private Long productId;
 
-    @NotNull(message = "The movement type is required")
+    @NotNull(message = "Le type de mouvement est requis")
     private MovementType type;
 
-    @NotNull(message = "The quantity is required")
-    @Min(value = 1, message = "The quantity must be at least 1")
+    @NotNull(message = "La quantité est requise")
+    @Min(value = 1, message = "La quantité doit être au moins 1")
     private Integer quantity;
 
-    @Size(max = 255, message = "The reason must not exceed 255 characters")
+    @Size(max = 255, message = "Le motif ne doit pas dépasser 255 caractères")
     private String reason;
 
-    @Size(max = 100, message = "The external reference must not exceed 100 characters")
+    @Size(max = 100, message = "La référence externe ne doit pas dépasser 100 caractères")
     private String externalReference;
 
-    @Size(max = 150, message = "The recipient must not exceed 150 characters")
+    @Size(max = 150, message = "Le destinataire ne doit pas dépasser 150 caractères")
     private String recipient;
 
     private Long supplierId;
 
-    @DecimalMin(value = "0.01", message = "The unit price must be greater than 0")
+    @DecimalMin(value = "0.01", message = "Le prix unitaire doit être supérieur à 0")
     private Double unitPrice;
 }

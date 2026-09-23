@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 public class ChangePasswordRequest {
 
-    @NotBlank(message = "The current password is required")
+    @NotBlank(message = "Le mot de passe actuel est requis")
     private String currentPassword;
 
-    @NotBlank(message = "The new password is required")
-    @Size(min = 6, message = "The new password must be at least 6 characters")
+    @NotBlank(message = "Le nouveau mot de passe est requis")
+    @Size(min = 6, message = "Le nouveau mot de passe doit contenir au moins 6 caractères")
     private String newPassword;
 }

@@ -15,17 +15,17 @@ import lombok.Setter;
 @Setter
 public class UserUpdateRequest {
 
-    @NotBlank(message = "The username is required")
-    @Size(min = 3, max = 50, message = "The username must be between 3 and 50 characters")
+    @NotBlank(message = "Le nom d'utilisateur est requis")
+    @Size(min = 3, max = 50, message = "Le nom d'utilisateur doit contenir entre 3 et 50 caractères")
     private String username;
 
-    @Size(min = 6, message = "The password must contain at least 6 characters")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
     private String password;
 
-    @NotBlank(message = "The full name is required")
+    @NotBlank(message = "Le nom complet est requis")
     private String fullName;
 
-    @NotNull(message = "The role is required")
+    @NotNull(message = "Le rôle est requis")
     private Role role;
 
     private boolean active = true;

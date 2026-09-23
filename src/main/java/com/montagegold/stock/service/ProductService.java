@@ -98,7 +98,7 @@ public class ProductService {
 
         productRepository.findByReferenceAndIdNot(request.getReference(), id)
                 .ifPresent(p -> {
-                    throw new BusinessException("This product reference already exists", HttpStatus.CONFLICT);
+                    throw new BusinessException("Cette référence de produit existe déjà", HttpStatus.CONFLICT);
                 });
 
         product.setReference(request.getReference());
@@ -124,7 +124,7 @@ public class ProductService {
     }
 
     private BusinessException notFound(Long id) {
-        return new BusinessException("Product not found (id=" + id + ")", HttpStatus.NOT_FOUND);
+        return new BusinessException("Produit introuvable (id=" + id + ")", HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -136,7 +136,7 @@ public class ProductService {
                 ? provided.trim()
                 : nextReference();
         if (productRepository.existsByReference(reference)) {
-            throw new BusinessException("This product reference already exists: " + reference,
+            throw new BusinessException("Cette référence de produit existe déjà: " + reference,
                     HttpStatus.CONFLICT);
         }
         return reference;

@@ -8,29 +8,29 @@ import lombok.Setter;
 @Setter
 public class ProductRequest {
 
-    @NotBlank(message = "The reference is required")
-    @Size(max = 50, message = "The reference must not exceed 50 characters")
+    @NotBlank(message = "La référence est requise")
+    @Size(max = 50, message = "La référence ne doit pas dépasser 50 caractères")
     private String reference;
 
-    @NotBlank(message = "The product name is required")
-    @Size(max = 100, message = "The name must not exceed 100 characters")
+    @NotBlank(message = "Le nom du produit est requis")
+    @Size(max = 100, message = "Le nom ne doit pas dépasser 100 caractères")
     private String name;
 
-    @Size(max = 255, message = "The description must not exceed 255 characters")
+    @Size(max = 255, message = "La description ne doit pas dépasser 255 caractères")
     private String description;
 
-    @NotBlank(message = "The category is required")
-    @Size(max = 50, message = "The category must not exceed 50 characters")
+    @NotBlank(message = "La catégorie est requise")
+    @Size(max = 50, message = "La catégorie ne doit pas dépasser 50 caractères")
     private String category;
 
-    @NotNull(message = "The minimum threshold is required")
-    @Min(value = 0, message = "The minimum threshold cannot be negative")
+    @NotNull(message = "Le seuil minimum est requis")
+    @Min(value = 0, message = "Le seuil minimum ne peut pas être négatif")
     private Integer minThreshold;
 
-    @NotNull(message = "The unit price is required")
-    @DecimalMin(value = "0.01", message = "The price must be greater than 0")
+    @NotNull(message = "Le prix unitaire est requis")
+    @DecimalMin(value = "0.01", message = "Le prix doit être supérieur à 0")
     private Double unitPrice;
 
-    @Min(value = 0, message = "The initial quantity cannot be negative")
+    @Min(value = 0, message = "La quantité initiale ne peut pas être négative")
     private Integer initialQuantity = 0;
 }

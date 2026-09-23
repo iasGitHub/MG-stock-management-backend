@@ -35,13 +35,13 @@ public class UserService {
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException(
-                        "User not found: " + username, HttpStatus.NOT_FOUND));
+                        "Utilisateur introuvable : " + username, HttpStatus.NOT_FOUND));
     }
 
     @Transactional
     public UserResponse create(UserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BusinessException("This username already exists", HttpStatus.CONFLICT);
+            throw new BusinessException("Ce nom d'utilisateur existe déjà", HttpStatus.CONFLICT);
         }
         User user = User.builder()
                 .username(request.getUsername())
@@ -60,7 +60,7 @@ public class UserService {
         userRepository.findByUsername(request.getUsername())
                 .filter(u -> !u.getId().equals(id))
                 .ifPresent(u -> {
-                    throw new BusinessException("This username already exists", HttpStatus.CONFLICT);
+                    throw new BusinessException("Ce nom d'utilisateur existe déjà", HttpStatus.CONFLICT);
                 });
 
         // Interdiction de se desactiver soi-meme ni de retirer le dernier administrateur actif.
@@ -146,7 +146,7 @@ public class UserService {
     private User getById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(
-                        "User not found (id=" + id + ")", HttpStatus.NOT_FOUND));
+                        "Utilisateur introuvable (id=" + id + ")", HttpStatus.NOT_FOUND));
     }
 
     private UserResponse toResponse(User u) {
