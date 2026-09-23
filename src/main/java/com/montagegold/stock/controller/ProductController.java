@@ -1,17 +1,16 @@
 package com.montagegold.stock.controller;
 
+import com.montagegold.stock.dto.ProductLiteResponse;
 import com.montagegold.stock.dto.ProductRequest;
 import com.montagegold.stock.dto.ProductResponse;
-import com.montagegold.stock.service.DashboardService;
 import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.ProductService;
+import com.montagegold.stock.util.PageableFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
@@ -28,7 +28,6 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
-    private final DashboardService dashboardService;
     private final ExcelService excelService;
 
     @GetMapping
@@ -39,10 +38,9 @@ public class ProductController {
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        // Tri restreint a une liste blanche, taille bornee (cf. PageableFactory).
+        Pageable pageable = PageableFactory.of(page, size, sortBy, sortDir, "name",
+                Set.of("name", "reference", "unitPrice", "stockQuantity", "minThreshold", "createdDate"));
         return ResponseEntity.ok(productService.findAll(search, pageable));
     }
 
@@ -76,9 +74,9 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/alerts")
-    public ResponseEntity<List<ProductResponse>> productsInAlert() {
-        return ResponseEntity.ok(dashboardService.getProductsInAlert());
+    @GetMapping("/lite")
+    public ResponseEntity<List<ProductLiteResponse>> findAllLite() {
+        return ResponseEntity.ok(productService.findAllLite());
     }
 
     @PostMapping("/import")

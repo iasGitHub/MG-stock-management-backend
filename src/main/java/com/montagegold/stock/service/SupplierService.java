@@ -1,5 +1,6 @@
 package com.montagegold.stock.service;
 
+import com.montagegold.stock.dto.SupplierLiteResponse;
 import com.montagegold.stock.dto.SupplierRequest;
 import com.montagegold.stock.dto.SupplierResponse;
 import com.montagegold.stock.entity.Supplier;
@@ -9,6 +10,7 @@ import com.montagegold.stock.repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,17 @@ public class SupplierService {
 
     public List<Supplier> findAllList() {
         return supplierRepository.findAll();
+    }
+
+    /** Liste allégée pour les listes déroulantes (sans pagination). */
+    public List<SupplierLiteResponse> findAllLite() {
+        return supplierRepository.findAll(Sort.by("name")).stream()
+                .map(s -> SupplierLiteResponse.builder()
+                        .id(s.getId())
+                        .nif(s.getNif())
+                        .name(s.getName())
+                        .build())
+                .toList();
     }
 
     public Supplier getById(Long id) {

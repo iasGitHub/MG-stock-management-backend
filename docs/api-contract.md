@@ -76,8 +76,10 @@ Clé = nom du champ JSON ; valeur = message Bean Validation (français).
 - Le BE renvoie Spring `Page<T>` sérialisé **à plat** (format actuel, compatible FE).
 - ⚠️ **Ne pas** activer `PageSerializationMode.VIA_DTO` : le format imbriqué
   (`page.number`, `page.totalElements`…) casserait le FE.
-- Paramètres : `page` (0-based, défaut `0`), `size` (défaut `10`),
+- Paramètres : `page` (0-based, défaut `0`), `size` (défaut `10`, **plafonné à 100**),
   `search`, `sortBy`, `sortDir` (`asc` | `desc`).
+- `sortBy` est **restreint à une liste blanche** par endpoint (`PageableFactory`) ;
+  toute valeur inconnue retombe sur le tri par défaut. `page` négatif ⇒ `0`.
 - L'export Excel (`/movements/export`) n'est **jamais** paginé ni tronqué.
 
 ## 4. Codes HTTP
@@ -110,12 +112,12 @@ Clé = nom du champ JSON ; valeur = message Bean Validation (français).
 | Méthode | Chemin                | Paramètres / Corps                      | Succès       | Erreurs          |
 | ------- | --------------------- | --------------------------------------- | ------------ | ---------------- |
 | GET     | `/products`           | `search, page, size, sortBy, sortDir`   | 200 `PageResponse<Product>` | — |
-| GET     | `/products/next-reference` | —                                   | 200 `{ reference }` (aperçu) | — |
+| GET     | `/products/lite`      | — (liste allégée non paginée : `id, reference, name, stockQuantity`, triée par nom) | 200 `ProductLite[]` | — |
+| GET     | `/products/next-reference | —                                   | 200 `{ reference }` (aperçu) | — |
 | GET     | `/products/{id}`      | —                                       | 200 `Product` | 404 |
 | POST    | `/products`           | `ProductRequest` (référence fournie par le client) | **201** `Product` | 400, **409** (doublon) |
 | PUT     | `/products/{id}`      | `ProductRequest`                        | 200 `Product` | 400, 404, 409 |
 | DELETE  | `/products/{id}`      | —                                       | 204 | 404, 409 (mouvements liés) |
-| GET     | `/products/alerts`    | —                                       | 200 `Product[]` | — *(à migrer vers `/api/dashboard/alerts`, cf. phase WS-B)* |
 | POST    | `/products/import`    | multipart `file` (.xlsx)                | 200 `{ created, skipped, total }` | 400 |
 | GET     | `/products/export/template` | —                                 | 200 `.xlsx` | — |
 
@@ -135,6 +137,7 @@ Clé = nom du champ JSON ; valeur = message Bean Validation (français).
 | Méthode | Chemin              | Paramètres / Corps                 | Succès          | Erreurs        |
 | ------- | ------------------- | ---------------------------------- | --------------- | -------------- |
 | GET     | `/suppliers`        | `search, page, size, sortBy, sortDir` | 200 `PageResponse<Supplier>` | — |
+| GET     | `/suppliers/lite`   | — (liste allégée non paginée : `id, nif, name`, triée par nom) | 200 `SupplierLite[]` | — |
 | GET     | `/suppliers/{id}`   | —                                  | 200 `Supplier`  | 404 |
 | POST    | `/suppliers`        | `SupplierRequest`                  | **201**         | 400, 409 (NIF) |
 | PUT     | `/suppliers/{id}`   | `SupplierRequest`                  | 200             | 400, 404, 409 |
@@ -169,7 +172,10 @@ fourni ⇒ encodé et `mustChangePassword` repasse à `true`.
 | Méthode | Chemin              | Succès                          |
 | ------- | ------------------- | ------------------------------- |
 | GET     | `/dashboard/stats`  | 200 `DashboardStats`            |
-| GET     | `/products/alerts`  | 200 `Product[]` (stock ≤ seuil) — voir 5.2 |
+| GET     | `/dashboard/alerts` | 200 `Product[]` (stock ≤ seuil) |
+
+> `GET /products/alerts` a été **supprimé** : remplacé par `GET /dashboard/alerts`
+> (FE mis à jour dans le même temps ; les deux doivent être déployés ensemble).
 
 `DashboardStats` : `{ totalProducts, totalQuantity, productsInAlert, stockValue, monthlyEntries, monthlyExits }`.
 

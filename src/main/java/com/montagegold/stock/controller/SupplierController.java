@@ -1,16 +1,16 @@
 package com.montagegold.stock.controller;
 
+import com.montagegold.stock.dto.SupplierLiteResponse;
 import com.montagegold.stock.dto.SupplierRequest;
 import com.montagegold.stock.dto.SupplierResponse;
 import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.SupplierService;
+import com.montagegold.stock.util.PageableFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -37,11 +38,14 @@ public class SupplierController {
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageableFactory.of(page, size, sortBy, sortDir, "name",
+                Set.of("name", "nif", "createdDate"));
         return ResponseEntity.ok(supplierService.findAll(search, pageable));
+    }
+
+    @GetMapping("/lite")
+    public ResponseEntity<List<SupplierLiteResponse>> findAllLite() {
+        return ResponseEntity.ok(supplierService.findAllLite());
     }
 
     @GetMapping("/{id}")

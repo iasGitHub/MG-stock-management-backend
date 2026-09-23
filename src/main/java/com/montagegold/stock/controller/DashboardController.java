@@ -1,12 +1,15 @@
 package com.montagegold.stock.controller;
 
 import com.montagegold.stock.dto.DashboardStats;
+import com.montagegold.stock.dto.ProductResponse;
 import com.montagegold.stock.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -18,5 +21,11 @@ public class DashboardController {
     @GetMapping("/stats")
     public ResponseEntity<DashboardStats> getStats() {
         return ResponseEntity.ok(dashboardService.getStats());
+    }
+
+    /** Produits en alerte (stock <= seuil) — ancien GET /products/alerts. */
+    @GetMapping("/alerts")
+    public ResponseEntity<List<ProductResponse>> productsInAlert() {
+        return ResponseEntity.ok(dashboardService.getProductsInAlert());
     }
 }

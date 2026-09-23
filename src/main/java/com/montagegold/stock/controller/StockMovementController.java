@@ -6,11 +6,11 @@ import com.montagegold.stock.dto.StockMovementResponse;
 import com.montagegold.stock.enums.MovementType;
 import com.montagegold.stock.service.ExcelService;
 import com.montagegold.stock.service.StockMovementService;
+import com.montagegold.stock.util.PageableFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class StockMovementController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("movementDate").descending());
+        Pageable pageable = PageableFactory.of(page, size, "movementDate", Sort.Direction.DESC);
         return ResponseEntity.ok(stockMovementService.findAll(productId, type, pageable));
     }
 

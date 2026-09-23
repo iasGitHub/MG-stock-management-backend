@@ -1,5 +1,6 @@
 package com.montagegold.stock.service;
 
+import com.montagegold.stock.dto.ProductLiteResponse;
 import com.montagegold.stock.dto.ProductRequest;
 import com.montagegold.stock.dto.ProductResponse;
 import com.montagegold.stock.entity.Product;
@@ -9,6 +10,7 @@ import com.montagegold.stock.repository.StockMovementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,18 @@ public class ProductService {
 
     public List<Product> findAllList() {
         return productRepository.findAll();
+    }
+
+    /** Liste allégée pour les listes déroulantes (sans pagination). */
+    public List<ProductLiteResponse> findAllLite() {
+        return productRepository.findAll(Sort.by("name")).stream()
+                .map(p -> ProductLiteResponse.builder()
+                        .id(p.getId())
+                        .reference(p.getReference())
+                        .name(p.getName())
+                        .stockQuantity(p.getStockQuantity())
+                        .build())
+                .toList();
     }
 
     public String nextReference() {

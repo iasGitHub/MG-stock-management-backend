@@ -3,18 +3,18 @@ package com.montagegold.stock.controller;
 import com.montagegold.stock.dto.CategoryRequest;
 import com.montagegold.stock.dto.CategoryResponse;
 import com.montagegold.stock.service.CategoryService;
+import com.montagegold.stock.util.PageableFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -31,10 +31,8 @@ public class CategoryController {
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable =
+                PageableFactory.of(page, size, sortBy, sortDir, "name", Set.of("name"));
         return ResponseEntity.ok(categoryService.findAll(search, pageable));
     }
 
