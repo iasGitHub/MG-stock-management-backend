@@ -15,11 +15,15 @@ import com.montagegold.stock.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+// Les comptes/produits de demonstration ne doivent jamais etre crees en production :
+// activer uniquement en local via SEED_DATA=true (.env.local).
+@ConditionalOnProperty(name = "application.seed-data.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

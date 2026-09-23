@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,29 @@ public class JwtService {
 
     @Value("${application.security.jwt.expiration}")
     private long expiration;
+
+    /**
+     * Demarrage fail-fast : un secret absent ou invalide bloque le demarrage plutot
+     * que de produire des 500 silencieux sur chaque requete authentifiee.
+     */
+    @PostConstruct
+    void validateSecret() {
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT_SECRET manquant : definir la variable d'environnement JWT_SECRET");
+        }
+        int decodedLength;
+        try {
+            decodedLength = Decoders.BASE64.decode(secretKey).length;
+        } catch (RuntimeException ex) {
+            throw new IllegalStateException("JWT_SECRET invalide : decodage Base64 impossible", ex);
+        }
+        if (decodedLength < 32) {
+            throw new IllegalStateException(
+                    "JWT_SECRET trop court : au moins 32 octets apres decodage Base64 (actuel : "
+                            + decodedLength + ")");
+        }
+    }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();

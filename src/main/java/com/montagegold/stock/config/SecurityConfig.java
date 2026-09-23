@@ -2,6 +2,8 @@ package com.montagegold.stock.config;
 
 import com.montagegold.stock.security.CustomUserDetailsService;
 import com.montagegold.stock.security.JwtAuthenticationFilter;
+import com.montagegold.stock.security.RestAccessDeniedHandler;
+import com.montagegold.stock.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final RestAuthenticationEntryPoint authenticationEntryPoint;
+    private final RestAccessDeniedHandler accessDeniedHandler;
 
     @Value("${application.cors.allowed-origins:http://localhost:4200}")
     private String allowedOrigins;
@@ -47,6 +51,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 401/403 en enveloppe JSON standard : le front peut detecter la fin de session.
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

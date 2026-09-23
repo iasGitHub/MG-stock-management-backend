@@ -61,7 +61,7 @@ public class ProductService {
     @Transactional
     public ProductResponse create(ProductRequest request) {
         Product product = Product.builder()
-                .reference(nextReference())
+                .reference(resolveReference(request.getReference()))
                 .name(request.getName())
                 .description(request.getDescription())
                 .category(categoryService.resolve(request.getCategory()))
@@ -74,16 +74,8 @@ public class ProductService {
 
     @Transactional
     public ProductResponse createFromImport(ProductRequest request) {
-        String reference = request.getReference() != null && !request.getReference().isBlank()
-                ? request.getReference().trim()
-                : nextReference();
-
-        if (productRepository.existsByReference(reference)) {
-            throw new BusinessException("This product reference already exists: " + reference, HttpStatus.CONFLICT);
-        }
-
         Product product = Product.builder()
-                .reference(reference)
+                .reference(resolveReference(request.getReference()))
                 .name(request.getName())
                 .description(request.getDescription())
                 .category(categoryService.resolve(request.getCategory()))
@@ -133,6 +125,21 @@ public class ProductService {
 
     private BusinessException notFound(Long id) {
         return new BusinessException("Product not found (id=" + id + ")", HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Reference proposee par le client (apercu au formulaire) ou generee,
+     * avec controle d'unicite pour renvoyer un 409 au lieu d'un 500.
+     */
+    private String resolveReference(String provided) {
+        String reference = provided != null && !provided.isBlank()
+                ? provided.trim()
+                : nextReference();
+        if (productRepository.existsByReference(reference)) {
+            throw new BusinessException("This product reference already exists: " + reference,
+                    HttpStatus.CONFLICT);
+        }
+        return reference;
     }
 
     private ProductResponse toResponse(Product p) {

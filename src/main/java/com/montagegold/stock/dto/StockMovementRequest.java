@@ -1,6 +1,7 @@
 package com.montagegold.stock.dto;
 
 import com.montagegold.stock.enums.MovementType;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -32,5 +33,6 @@ public class StockMovementRequest {
 
     private Long supplierId;
 
+    @DecimalMin(value = "0.01", message = "The unit price must be greater than 0")
     private Double unitPrice;
 }

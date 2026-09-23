@@ -19,6 +19,15 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
     Page<StockMovement> findByType(MovementType type, Pageable pageable);
 
+    // Variantes non paginees : utilsees pour l'export Excel (aucune troncature).
+    List<StockMovement> findByProductId(Long productId);
+
+    List<StockMovement> findByProductIdAndType(Long productId, MovementType type);
+
+    List<StockMovement> findByType(MovementType type);
+
+    boolean existsByUserId(Long userId);
+
     boolean existsBySupplierId(Long supplierId);
 
     boolean existsByProductId(Long productId);

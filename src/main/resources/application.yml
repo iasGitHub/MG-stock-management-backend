@@ -23,6 +23,10 @@ server:
 application:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  # Donnees de demonstration (admin/manager + produits) : desactivees par defaut.
+  # Activer uniquement en local via SEED_DATA=true (voir .env.local).
+  seed-data:
+    enabled: ${SEED_DATA:false}
   security:
     jwt:
       # NE PAS mettre de valeur par defaut sensible : fournir JWT_SECRET via variable d'env (ou .env.local).

@@ -1,6 +1,7 @@
 package com.montagegold.stock.repository;
 
 import com.montagegold.stock.entity.User;
+import com.montagegold.stock.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -10,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String username);
+
+    long countByRoleAndActive(Role role, boolean active);
 }

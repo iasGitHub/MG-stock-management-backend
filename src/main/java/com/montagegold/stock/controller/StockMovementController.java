@@ -63,9 +63,7 @@ public class StockMovementController {
             @RequestParam(required = false) MovementType type,
             HttpServletResponse response) throws IOException {
 
-        Page<StockMovementResponse> page = stockMovementService.findAll(
-                productId, type, PageRequest.of(0, 10000, Sort.by("movementDate").descending()));
-        List<StockMovementResponse> movements = page.getContent();
+        List<StockMovementResponse> movements = stockMovementService.findAllForExport(productId, type);
         excelService.exportMovements(movements, response);
     }
 }

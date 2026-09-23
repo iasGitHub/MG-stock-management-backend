@@ -2,6 +2,7 @@ package com.montagegold.stock.controller;
 
 import com.montagegold.stock.dto.auth.UserRequest;
 import com.montagegold.stock.dto.auth.UserResponse;
+import com.montagegold.stock.dto.auth.UserUpdateRequest;
 import com.montagegold.stock.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@PathVariable Long id,
-                                               @Valid @RequestBody UserRequest request) {
+                                               @Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.update(id, request));
     }
 

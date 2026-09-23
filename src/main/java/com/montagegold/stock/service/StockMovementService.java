@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StockMovementService {
@@ -41,6 +43,21 @@ public class StockMovementService {
             page = movementRepository.findAll(pageable);
         }
         return page.map(this::toResponse);
+    }
+
+    /** Export complet sans pagination : l'export ne doit jamais etre tronque silencieusement. */
+    public List<StockMovementResponse> findAllForExport(Long productId, MovementType type) {
+        List<StockMovement> movements;
+        if (productId != null && type != null) {
+            movements = movementRepository.findByProductIdAndType(productId, type);
+        } else if (productId != null) {
+            movements = movementRepository.findByProductId(productId);
+        } else if (type != null) {
+            movements = movementRepository.findByType(type);
+        } else {
+            movements = movementRepository.findAll();
+        }
+        return movements.stream().map(this::toResponse).toList();
     }
 
     @Transactional
