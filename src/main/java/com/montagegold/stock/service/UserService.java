@@ -1,5 +1,6 @@
 package com.montagegold.stock.service;
 
+import com.montagegold.stock.dto.auth.PasswordResetResponse;
 import com.montagegold.stock.dto.auth.UserRequest;
 import com.montagegold.stock.dto.auth.UserResponse;
 import com.montagegold.stock.dto.auth.UserUpdateRequest;
@@ -9,6 +10,7 @@ import com.montagegold.stock.exception.BusinessException;
 import com.montagegold.stock.repository.StockMovementRepository;
 import com.montagegold.stock.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,11 +18,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    /** Alphabet sans caracteres ambigus (0/O, 1/I/l) pour faciliter la saisie manuelle. */
+    private static final String TEMP_PASSWORD_ALPHABET =
+            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+    private static final int TEMP_PASSWORD_LENGTH = 12;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -126,11 +136,40 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    /**
+     * Reinitialise le mot de passe d'un utilisateur : genere un mot de passe temporaire
+     * aleatoire, l'encode et force son changement a la prochaine connexion.
+     * Le mot de passe temporaire n'est renvoye qu'une seule fois (jamais stocke en clair).
+     */
+    @Transactional
+    public PasswordResetResponse resetPassword(Long id) {
+        User user = getById(id);
+        String temporaryPassword = generateTemporaryPassword();
+        user.setPassword(passwordEncoder.encode(temporaryPassword));
+        user.setMustChangePassword(true);
+        userRepository.save(user);
+        log.info("Password reset for user {} by {}", user.getUsername(), currentActor());
+        return PasswordResetResponse.builder().temporaryPassword(temporaryPassword).build();
+    }
+
     /** Nombre d'administrateurs actifs autres que le compte passe en parametre. */
     private long remainingActiveAdmins(User user) {
         long activeAdmins = userRepository.countByRoleAndActive(Role.ADMIN, true);
         boolean counted = user.getRole() == Role.ADMIN && user.isActive();
         return activeAdmins - (counted ? 1 : 0);
+    }
+
+    private static String generateTemporaryPassword() {
+        StringBuilder sb = new StringBuilder(TEMP_PASSWORD_LENGTH);
+        for (int i = 0; i < TEMP_PASSWORD_LENGTH; i++) {
+            sb.append(TEMP_PASSWORD_ALPHABET.charAt(SECURE_RANDOM.nextInt(TEMP_PASSWORD_ALPHABET.length())));
+        }
+        return sb.toString();
+    }
+
+    private String currentActor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : "system";
     }
 
     private Long currentUserId() {

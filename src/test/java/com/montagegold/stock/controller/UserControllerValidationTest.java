@@ -1,5 +1,6 @@
 package com.montagegold.stock.controller;
 
+import com.montagegold.stock.dto.auth.PasswordResetResponse;
 import com.montagegold.stock.dto.auth.UserUpdateRequest;
 import com.montagegold.stock.exception.GlobalExceptionHandler;
 import com.montagegold.stock.service.UserService;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -94,5 +96,15 @@ class UserControllerValidationTest {
                 .andExpect(status().isCreated());
 
         verify(userService).create(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void resetPasswordReturnsTemporaryPassword() throws Exception {
+        when(userService.resetPassword(1L)).thenReturn(
+                PasswordResetResponse.builder().temporaryPassword("Abc123Xyz789").build());
+
+        mockMvc.perform(post("/api/users/1/reset-password"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.temporaryPassword").value("Abc123Xyz789"));
     }
 }

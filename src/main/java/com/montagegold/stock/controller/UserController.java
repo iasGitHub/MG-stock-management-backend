@@ -1,5 +1,6 @@
 package com.montagegold.stock.controller;
 
+import com.montagegold.stock.dto.auth.PasswordResetResponse;
 import com.montagegold.stock.dto.auth.UserRequest;
 import com.montagegold.stock.dto.auth.UserResponse;
 import com.montagegold.stock.dto.auth.UserUpdateRequest;
@@ -47,5 +48,10 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/reset-password")
+    public ResponseEntity<PasswordResetResponse> resetPassword(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.resetPassword(id));
     }
 }

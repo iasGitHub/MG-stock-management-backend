@@ -161,11 +161,16 @@ Clé = nom du champ JSON ; valeur = message Bean Validation (français).
 | GET     | `/users`                | —                                            | 200 `User[]` | 401, 403 |
 | POST    | `/users`                | `{ username, password, fullName, role, active }` | **201** `User` | 400, 409 |
 | PUT     | `/users/{id}`           | `{ username, fullName, role, active, password? }` | 200 `User` | 400, 404, 409 |
+| POST    | `/users/{id}/reset-password` | —                                       | 200 `{ temporaryPassword }` | 404 |
 | PATCH   | `/users/{id}/toggle-active` | —                                        | 204       | 400 (auto-désactivation interdite, dernier admin actif) |
 | DELETE  | `/users/{id}`           | —                                            | 204       | 400 (soi-même, dernier admin), 404, 409 (mouvements liés) |
 
 Règles `password` : absent/`null` à la mise à jour ⇒ mot de passe **conservé** ;
 fourni ⇒ encodé et `mustChangePassword` repasse à `true`.
+
+`POST /users/{id}/reset-password` : génère un mot de passe temporaire aléatoire renvoyé **une seule fois**,
+encodé en BCrypt, `mustChangePassword` repasse à `true`. L'ID de l'utilisateur est conservé :
+l'historique des mouvements de stock reste intact.
 
 ### 5.7 Tableau de bord — `/api/dashboard`
 

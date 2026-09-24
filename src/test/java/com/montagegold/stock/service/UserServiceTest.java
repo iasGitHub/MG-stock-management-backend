@@ -1,5 +1,6 @@
 package com.montagegold.stock.service;
 
+import com.montagegold.stock.dto.auth.PasswordResetResponse;
 import com.montagegold.stock.dto.auth.UserRequest;
 import com.montagegold.stock.dto.auth.UserResponse;
 import com.montagegold.stock.dto.auth.UserUpdateRequest;
@@ -205,5 +206,29 @@ class UserServiceTest {
 
         assertThat(response.getUsername()).isEqualTo("bob");
         verify(passwordEncoder).encode("secret1");
+    }
+
+    @Test
+    void resetPasswordEncodesTemporaryPasswordAndForcesChange() {
+        User manager = user(2L, "manager", Role.MANAGEMENT, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(manager));
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-temp");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PasswordResetResponse response = userService.resetPassword(2L);
+
+        assertThat(response.getTemporaryPassword()).isNotBlank().hasSize(12);
+        verify(passwordEncoder).encode(response.getTemporaryPassword());
+        assertThat(manager.getPassword()).isEqualTo("encoded-temp");
+        assertThat(manager.isMustChangePassword()).isTrue();
+    }
+
+    @Test
+    void resetPasswordRejectsUnknownUser() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.resetPassword(99L))
+                .isInstanceOfSatisfying(BusinessException.class, ex ->
+                        assertThat(ex.getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
     }
 }
