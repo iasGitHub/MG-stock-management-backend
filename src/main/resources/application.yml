@@ -2,6 +2,13 @@ spring:
   application:
     name: stock-management
 
+  config:
+    # Dev local (IDE ou terminal) : lit .env.local comme properties — mêmes cles que
+    # run-local.ps1 (DB_URL, JWT_SECRET, SEED_DATA...). Optionnel : silencieux si le
+    # fichier est absent (CI, image Docker, Railway). Les vraies variables
+    # d'environnement restent prioritaires sur ce fichier.
+    import: optional:file:./.env.local[.properties]
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/stock_management}
     username: ${DB_USERNAME:postgres}
