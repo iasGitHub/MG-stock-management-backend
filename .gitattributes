@@ -1,0 +1,2 @@
+# entrypoint.sh doit rester en LF (execute par sh dans le conteneur Linux).
+entrypoint.sh text eol=lf
