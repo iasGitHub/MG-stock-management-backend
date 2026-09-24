@@ -17,4 +17,4 @@ jobs:
           java-version: 21
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw -B test
+      - run: ./mvnw -B verify
