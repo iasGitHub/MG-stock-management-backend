@@ -66,6 +66,16 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Flyway : migrations versionnées (ddl-auto passe en validate) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- Apache POI for Excel import/export -->
         <dependency>
             <groupId>org.apache.poi</groupId>

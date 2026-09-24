@@ -8,9 +8,16 @@ spring:
     password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 
+  flyway:
+    enabled: true
+    # Base existante (Railway) sans historique Flyway : baseline à la version 1,
+    # V1__init.sql n'est donc exécuté que sur une base fraîche.
+    baseline-on-migrate: true
+    baseline-version: 1
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
